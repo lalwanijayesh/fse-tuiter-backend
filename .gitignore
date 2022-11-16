@@ -1,0 +1,11 @@
+.env
+.idea
+node_modules
+build
+data
+out
+coverage
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
