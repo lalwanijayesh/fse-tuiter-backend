@@ -96,6 +96,7 @@ export default class MessageDao implements MessageDaoI {
             .find({$or: [{from: uid}, {from: ruid}]})
             .populate('from', 'username')
             .populate('to', 'username')
+            .sort({sentOn: 1})
             .exec();
     }
 }
