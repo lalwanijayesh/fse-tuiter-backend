@@ -50,9 +50,13 @@ export default class MessageController implements MessageControllerI {
      * @param {Response} res Represents response to client, including the
      * body formatted as JSON object for the new message that is inserted in the database
      */
-    userMessagesAnotherUser = (req: Request, res: Response) =>
+    userMessagesAnotherUser = (req: Request, res: Response) => {
+        let userId = req.params.uid === "me" && req.session['profile'] ?
+            req.session['profile']._id : req.params.uid;
         MessageController.messageDao.userMessagesAnotherUser(req.params.uid, req.params.ruid, req.body.message)
             .then(message => res.json(message));
+
+    }
 
     /**
      * Retrieves all the messages sent by a particular user
