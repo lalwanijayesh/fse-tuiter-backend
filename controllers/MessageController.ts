@@ -110,8 +110,16 @@ export default class MessageController implements MessageControllerI {
      * @param {Response} res Represents response to client, including the
      * body formatted as JSON array containing the message objects
      */
-    findMessagesBetweenUsers = (req: Request, res: Response) =>
-        MessageController.messageDao.findMessagesBetweenUsers(req.params.uid, req.params.ruid)
+    findMessagesBetweenUsers = (req: Request, res: Response) => {
+        let senderUserId = req.params.uid === "me" && req.session['profile'] ?
+            req.session['profile']._id : req.params.uid;
+
+        if (senderUserId === "me") {
+            res.sendStatus(503);
+            return;
+        }
+        MessageController.messageDao.findMessagesBetweenUsers(senderUserId, req.params.ruid)
             .then(messages => res.json(messages));
+    }
 
 }
