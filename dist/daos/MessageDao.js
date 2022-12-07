@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const MessageModel_1 = __importDefault(require("../mongoose/MessageModel"));
+const mongoose = require('mongoose');
 /**
  * @class MessageDao Implements Data Access Object managing data
  * storage of Messages.
@@ -84,6 +85,29 @@ class MessageDao {
             return MessageModel_1.default.updateOne({ _id: mid }, { $set: { message: message } });
         });
     }
+    getLatestMessageForUser(uid) {
+        return __awaiter(this, void 0, void 0, function* () {
+            let id = mongoose.Types.ObjectId(uid);
+            const result = yield MessageModel_1.default.aggregate([
+                { $match: { $or: [{ from: id }, { to: id }] } }, { $sort: { 'sentOn': -1 } },
+                { $group: { _id: { from: "$from", to: "$to" },
+                        "doc": { "$first": "$$ROOT" } } }, { "$replaceRoot": { "newRoot": "$doc" } },
+                { $lookup: {
+                        from: "users",
+                        localField: "from",
+                        foreignField: "_id",
+                        as: "from"
+                    } }, { $lookup: {
+                        from: "users",
+                        localField: "to",
+                        foreignField: "_id",
+                        as: "to"
+                    } },
+                { $unwind: "$from" }, { $unwind: "$to" }
+            ]);
+            return result;
+        });
+    }
     /**
      * Uses MessageModel to retrieve messages exchanged between two users
      * @param {string} uid Primary key of the user that sent the messages
@@ -96,6 +120,7 @@ class MessageDao {
                 .find({ $or: [{ from: uid }, { from: ruid }] })
                 .populate('from', 'username')
                 .populate('to', 'username')
+                .sort({ sentOn: 1 })
                 .exec();
         });
     }

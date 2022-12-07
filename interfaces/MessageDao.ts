@@ -10,4 +10,5 @@ export default interface MessageDao {
     deleteMessage(mid: string): Promise<any>;
     updateMessage(mid: string, message: string): Promise<any>;
     findMessagesBetweenUsers(uid: string, ruid: string): Promise<Message[]>;
+    getLatestMessageForUser(uid: string):Promise<Message[]>;
 };

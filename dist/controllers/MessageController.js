@@ -1,4 +1,13 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -29,8 +38,41 @@ class MessageController {
          * @param {Response} res Represents response to client, including the
          * body formatted as JSON object for the new message that is inserted in the database
          */
-        this.userMessagesAnotherUser = (req, res) => MessageController.messageDao.userMessagesAnotherUser(req.params.uid, req.params.ruid, req.body.message)
-            .then(message => res.json(message));
+        this.userMessagesAnotherUser = (req, res) => {
+            let userId = req.params.uid === "me" && req.session['profile'] ?
+                req.session['profile']._id : req.params.uid;
+            MessageController.messageDao.userMessagesAnotherUser(req.params.uid, req.params.ruid, req.body.message)
+                .then(message => res.json(message));
+        };
+        /**
+         * Method to get the latest sent/received message from a user to the logged in user.
+         * @param {Request} req Represents request from client, including path
+         * parameters uid is the logged in user
+         * the body containing the JSON object for the message
+         * @param {Response} res Represents response to client, including the
+         * body formatted as JSON object for the new message that is inserted in the database
+         */
+        this.getLatestMessageForUser = (req, res) => __awaiter(this, void 0, void 0, function* () {
+            let senderUserId = req.params.uid === "me" && req.session['profile'] ?
+                req.session['profile']._id : req.params.uid;
+            const messages = yield MessageController.messageDao.getLatestMessageForUser(senderUserId);
+            for (let i = 0; i < messages.length; i++) {
+                for (let j = 1; j < messages.length - 1; j++) {
+                    if (messages[i].from.username === messages[j].to.username && messages[i].to.username === messages[j].from.username) {
+                        if (messages[i].sentOn > messages[j].sentOn) {
+                            messages.splice(j, 1);
+                        }
+                        else {
+                            messages.splice(i, 1);
+                        }
+                    }
+                }
+            }
+            (messages.forEach(message => {
+                console.log(message.sentOn);
+            }));
+            res.send(messages);
+        });
         /**
          * Retrieves all the messages sent by a particular user
          * @param {Request} req Represents request from client, including path
@@ -75,8 +117,16 @@ class MessageController {
          * @param {Response} res Represents response to client, including the
          * body formatted as JSON array containing the message objects
          */
-        this.findMessagesBetweenUsers = (req, res) => MessageController.messageDao.findMessagesBetweenUsers(req.params.uid, req.params.ruid)
-            .then(messages => res.json(messages));
+        this.findMessagesBetweenUsers = (req, res) => {
+            let senderUserId = req.params.uid === "me" && req.session['profile'] ?
+                req.session['profile']._id : req.params.uid;
+            if (senderUserId === "me") {
+                res.sendStatus(503);
+                return;
+            }
+            MessageController.messageDao.findMessagesBetweenUsers(senderUserId, req.params.ruid)
+                .then(messages => res.json(messages));
+        };
     }
 }
 exports.default = MessageController;
@@ -96,6 +146,7 @@ MessageController.getInstance = (app) => {
         app.delete('/messages/:mid', MessageController.messageController.deleteMessage);
         app.put('/messages/:mid', MessageController.messageController.updateMessage);
         app.get('/users/:uid/messages/:ruid', MessageController.messageController.findMessagesBetweenUsers);
+        app.get('/users/:uid/chats', MessageController.messageController.getLatestMessageForUser);
     }
     return MessageController.messageController;
 };

@@ -5,6 +5,8 @@
 import MessageDaoI from "../interfaces/MessageDao"
 import Message from "../models/Message";
 import MessageModel from "../mongoose/MessageModel";
+const mongoose = require('mongoose');
+
 
 /**
  * @class MessageDao Implements Data Access Object managing data
@@ -84,6 +86,34 @@ export default class MessageDao implements MessageDaoI {
             {$set: {message: message}}
         );
     }
+
+    /**
+     * Gets latest sent/received message for the logged in user from their chat.
+     * @param {string} uid user id of the logged in user.
+     * @returns Promise To be notified when message is updated in the database
+     */
+    async getLatestMessageForUser(uid: string): Promise<Message[]>{
+        let id = mongoose.Types.ObjectId(uid);
+        const result = await MessageModel.aggregate([
+            { $match: { $or : [{ from: id },{to:id}]}},{$sort:{'sentOn':-1}}
+            ,{$group:{_id:{from:"$from",to:"$to"}
+                    ,"doc":{"$first":"$$ROOT"}}},{"$replaceRoot":{"newRoot":"$doc"}},
+            {$lookup: {
+                    from: "users",
+                    localField: "from",
+                    foreignField: "_id",
+                    as: "from"
+                }},{$lookup: {
+                    from: "users",
+                    localField: "to",
+                    foreignField: "_id",
+                    as: "to"
+                }}
+                , { $unwind: "$from" }, { $unwind: "$to" }
+        ]);
+        return result;
+    }
+
 
     /**
      * Uses MessageModel to retrieve messages exchanged between two users

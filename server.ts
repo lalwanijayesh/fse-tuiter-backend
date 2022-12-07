@@ -30,7 +30,7 @@ import AuthController from "./controllers/AuthController";
 const app = express();
 
 let sess = {
-    secret: process.env.SECRET,
+    secret: "mysecret",
     saveUninitialized: false,
     resave: false,
     cookie: {
@@ -67,7 +67,10 @@ const DB_PASSWORD = process.env.DB_PASSWORD;
 const DB_HOST = process.env.DB_HOST;
 const DB_NAME = "tuiter";
 // mongoose.connect(`${PROTOCOL}://${DB_USERNAME}:${DB_PASSWORD}@${DB_HOST}/${DB_NAME}`, options);
-mongoose.connect('mongodb://localhost:27017/tuiter', options);
+//mongoose.connect('mongodb://localhost:27017/tuiter', options);
+
+const connectionString="mongodb+srv://fse-team13:MVprxpWksVkla6vO@fse.yx5wwsz.mongodb.net/tuiter";
+mongoose.connect(connectionString);
 
 // Inject RESTful controllers for web service API
 const userController = UserController.getInstance(app);
