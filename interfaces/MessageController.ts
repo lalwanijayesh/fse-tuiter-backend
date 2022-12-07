@@ -10,4 +10,5 @@ export default interface MessageController {
     deleteMessage(req: Request, res: Response): void;
     updateMessage(req: Request, res: Response): void;
     findMessagesBetweenUsers(req: Request, res: Response): void;
+    getLatestMessageForUser(req: Request, res:Response): void;
 };
