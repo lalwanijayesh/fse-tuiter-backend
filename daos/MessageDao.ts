@@ -94,7 +94,7 @@ export default class MessageDao implements MessageDaoI {
      */
     async findMessagesBetweenUsers(uid: string, ruid: string): Promise<Message[]> {
         return MessageModel
-            .find({$or: [{from: uid}, {from: ruid}]})
+            .find({$or: [{from: uid, to: ruid}, {from: ruid, to: uid}]})
             .populate('from', 'username')
             .populate('to', 'username')
             .sort({sentOn: 1})
