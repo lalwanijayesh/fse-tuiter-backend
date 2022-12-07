@@ -1,6 +1,5 @@
 import StarControllerI from "../interfaces/StarController";
 import {Request, Response, Express} from "express";
-import LikeDao from "../daos/LikeDao";
 import StarDao from "../daos/StarDao";
 
 export default class StarController implements StarControllerI{
