@@ -37,6 +37,7 @@ export default class MessageController implements MessageControllerI {
             app.delete('/messages/:mid', MessageController.messageController.deleteMessage);
             app.put('/messages/:mid', MessageController.messageController.updateMessage);
             app.get('/users/:uid/messages/:ruid', MessageController.messageController.findMessagesBetweenUsers);
+            app.get('/users/:uid/chats', MessageController.messageController.getLatestMessageForUser);
         }
         return MessageController.messageController;
     }
@@ -68,6 +69,37 @@ export default class MessageController implements MessageControllerI {
     findMessagesSentByUser = (req: Request, res: Response) =>
         MessageController.messageDao.findMessagesSentByUser(req.params.uid)
             .then(messages => res.json(messages));
+
+
+    /**
+     * Method to get the latest sent/received message from a user to the logged in user.
+     * @param {Request} req Represents request from client, including path
+     * parameters uid is the logged in user
+     * the body containing the JSON object for the message
+     * @param {Response} res Represents response to client, including the
+     * body formatted as JSON object for the new message that is inserted in the database
+     */
+    getLatestMessageForUser= async (req: Request, res: Response) =>{
+        let senderUserId = req.params.uid === "me" && req.session['profile'] ?
+            req.session['profile']._id : req.params.uid;
+        const messages = await MessageController.messageDao.getLatestMessageForUser(senderUserId);
+        for(let i=0; i<messages.length; i++){
+            for(let j=1; j<messages.length-1; j++){
+                if(messages[i].from.username === messages[j].to.username && messages[i].to.username === messages[j].from.username){
+                    if(messages[i].sentOn > messages[j].sentOn){
+                        messages.splice(j,1);
+                    }
+                    else{
+                        messages.splice(i,1);
+                    }
+                }
+            }
+        }
+        for(let i=0; i<messages.length; i++){
+            console.log("the time stamp is "+ messages[i].sentOn + "by " + messages[i].from.username + " to " + messages[i].to.username);
+        }
+        res.send(messages);
+    }
 
     /**
      * Retrieves all the messages received by a particular user
