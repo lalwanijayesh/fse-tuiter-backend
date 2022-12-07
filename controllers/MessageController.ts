@@ -79,24 +79,20 @@ export default class MessageController implements MessageControllerI {
      * @param {Response} res Represents response to client, including the
      * body formatted as JSON object for the new message that is inserted in the database
      */
-    getLatestMessageForUser= async (req: Request, res: Response) =>{
+    getLatestMessageForUser = async (req: Request, res: Response) => {
         let senderUserId = req.params.uid === "me" && req.session['profile'] ?
             req.session['profile']._id : req.params.uid;
         const messages = await MessageController.messageDao.getLatestMessageForUser(senderUserId);
-        for(let i=0; i<messages.length; i++){
-            for(let j=1; j<messages.length-1; j++){
-                if(messages[i].from.username === messages[j].to.username && messages[i].to.username === messages[j].from.username){
-                    if(messages[i].sentOn > messages[j].sentOn){
-                        messages.splice(j,1);
-                    }
-                    else{
-                        messages.splice(i,1);
+        for (let i = 0; i < messages.length - 1; i++) {
+            for (let j = 1; j < messages.length; j++) {
+                if (messages[i].from.username === messages[j].to.username && messages[i].to.username === messages[j].from.username) {
+                    if (messages[i].sentOn > messages[j].sentOn) {
+                        messages.splice(j, 1);
+                    } else {
+                        messages.splice(i, 1);
                     }
                 }
             }
-        }
-        for(let i=0; i<messages.length; i++){
-            console.log("the time stamp is "+ messages[i].sentOn + "by " + messages[i].from.username + " to " + messages[i].to.username);
         }
         res.send(messages);
     }
