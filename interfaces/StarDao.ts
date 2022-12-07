@@ -1,3 +1,6 @@
+/**
+ * @file Declares interface for Starred related data access object methods.
+ */
 import Star from "../models/Star";
 
 export default interface StarDao{

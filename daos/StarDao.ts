@@ -1,6 +1,15 @@
+/**
+ * @file Implements DAO managing data storage of stars. Uses mongoose StarModel
+ * to integrate with MongoDB.
+ */
 import StarDaoI from "../interfaces/StarDao";
 import Star from "../models/Star";
 
+/**
+ * @class StarDao Implements Data Access Object managing data
+ * storage of Stars.
+ * @property {StarDao} starDao private single instance of StarDao
+ */
 export default class StarDao implements StarDaoI{
 
     private static starDao: StarDao | null = null;
