@@ -4,6 +4,9 @@
  */
 import StarDaoI from "../interfaces/StarDao";
 import Star from "../models/Star";
+import Like from "../models/Like";
+import LikeModel from "../mongoose/LikeModel";
+import StarModel from "../mongoose/StarModel";
 
 /**
  * @class StarDao Implements Data Access Object managing data
@@ -30,8 +33,17 @@ export default class StarDao implements StarDaoI{
         return Promise.resolve([]);
     }
 
-    userStarsMessage(uid: string, mid: string): Promise<Star> {
-        return Promise.resolve(undefined);
+    /**
+     * Insert starred instance into the database
+     * @param {string} uid Primary key of the user that starred the tuit
+     * @param {string} mid Primary key of the message that was starred
+     * @returns Promise To be notified when starred message is inserted into the database
+     */
+    async userStarsMessage(uid: string, mid: string): Promise<Star> {
+        return await StarModel.create({
+            message: mid,
+            starredBy: uid
+        });
     }
 
     userUnstarsMessage(uid: string, mid: string): Promise<any> {

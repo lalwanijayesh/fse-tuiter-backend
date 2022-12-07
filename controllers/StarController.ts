@@ -45,8 +45,9 @@ export default class StarController implements StarControllerI{
      * @param {Response} res Represents response to client, including the
      * body formatted as JSON containing the new star instance inserted in the database
      */
-    userStarsMessage(req:Request, res: Response): void {
-    }
+    userStarsMessage=(req:Request, res: Response) =>
+    StarController.starDao.userStarsMessage(req.params.uid, req.params.mid)
+        .then(stars => res.json(stars));
 
     /**
      * Removes an existing star instance
