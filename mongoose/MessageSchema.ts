@@ -17,6 +17,7 @@ const MessageSchema = new mongoose.Schema({
         required: true
     },
     sentOn: {type: Date, default: Date.now},
+    edited: {type: Boolean, default: false},
 }, {collection: 'messages'});
 
 export default MessageSchema;

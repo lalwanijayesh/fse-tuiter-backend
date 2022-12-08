@@ -16,4 +16,5 @@ export default class Message {
     from: User | null = null;
     to: User | null = null;
     sentOn: Date | null = new Date();
+    edited: Boolean | false = false;
 };

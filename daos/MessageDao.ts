@@ -38,7 +38,8 @@ export default class MessageDao implements MessageDaoI {
             .create({
                 message: message,
                 from: uid,
-                to: ruid
+                to: ruid,
+                edited: false
             });
     }
 
@@ -81,8 +82,8 @@ export default class MessageDao implements MessageDaoI {
      * @returns Promise To be notified when message is updated in the database
      */
     async updateMessage(mid: string, message: string): Promise<any> {
-        return MessageModel.updateOne({_id: mid},
-            {$set: {message: message}}
+        return MessageModel.findOneAndUpdate({_id: mid},
+            {$set: {message: message}}, {returnOriginal: false}
         );
     }
 
