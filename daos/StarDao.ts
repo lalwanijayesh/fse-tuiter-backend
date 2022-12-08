@@ -31,8 +31,17 @@ export default class StarDao implements StarDaoI{
         return StarModel.find({uid})
     }
 
-    userStarsMessage(uid: string, mid: string): Promise<Star> {
-        return Promise.resolve(undefined);
+    /**
+     * Insert starred instance into the database
+     * @param {string} uid Primary key of the user that starred the tuit
+     * @param {string} mid Primary key of the message that was starred
+     * @returns Promise To be notified when starred message is inserted into the database
+     */
+    async userStarsMessage(uid: string, mid: string): Promise<Star> {
+        return await StarModel.create({
+            message: mid,
+            starredBy: uid
+        });
     }
 
     /**

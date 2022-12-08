@@ -8,6 +8,7 @@
  *     <li>Follows</li>
  *     <li>Bookmarks</li>
  *     <li>Messages</li>
+ *     <li>Stars</li>
  * </ul>
  *
  * Connects to a remote MongoDB instance hosted on the Atlas cloud database service.
