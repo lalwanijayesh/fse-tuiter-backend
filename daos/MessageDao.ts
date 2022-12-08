@@ -83,7 +83,7 @@ export default class MessageDao implements MessageDaoI {
      */
     async updateMessage(mid: string, message: string): Promise<any> {
         return MessageModel.findOneAndUpdate({_id: mid},
-            {$set: {message: message}}, {returnOriginal: false}
+            {$set: {message: message, edited: true}}, {returnOriginal: false}
         );
     }
 
