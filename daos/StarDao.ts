@@ -4,6 +4,7 @@
  */
 import StarDaoI from "../interfaces/StarDao";
 import Star from "../models/Star";
+import StarModel from "../mongoose/StarModel";
 
 /**
  * @class StarDao Implements Data Access Object managing data
@@ -26,16 +27,25 @@ export default class StarDao implements StarDaoI{
     };
     private constructor() {}
 
-    findAllStarredMessagesByUser(uid: string): Promise<Star[]> {
-        return Promise.resolve([]);
+    async findAllStarredMessagesByUser(uid: string): Promise<Star[]> {
+        return StarModel.find({uid})
     }
 
     userStarsMessage(uid: string, mid: string): Promise<Star> {
         return Promise.resolve(undefined);
     }
 
-    userUnstarsMessage(uid: string, mid: string): Promise<any> {
-        return Promise.resolve(undefined);
+    /**
+     * Removes an existing star instance from the database
+     * @param {string} uid Primary key of the user that starred the message
+     * @param {string} mid Primary key of the message that was starred
+     * @returns Promise To be notified when like is removed from the database
+     */
+    async userUnstarsMessage(uid: string, mid: string): Promise<any> {
+        return StarModel.deleteOne({
+            message: mid,
+            starredBy: uid
+        });
     }
 
 }

@@ -4,6 +4,7 @@
 import StarControllerI from "../interfaces/StarController";
 import {Request, Response, Express} from "express";
 import StarDao from "../daos/StarDao";
+import Star from "../models/Star";
 
 /**
  * @class StarController Implements RESTful Web service API for stars resource.
@@ -24,6 +25,8 @@ export default class StarController implements StarControllerI{
         if (StarController.starController == null) {
             StarController.starController = new StarController();
             app.post('/users/:uid/stars/:mid', StarController.starController.userStarsMessage);
+            app.delete('/users/:uid/stars/:mid', StarController.starController.userUnstarsMessage);
+            app.get('/starred/:uid', StarController.starController.findAllStarredMessagesByUser);
         }
         return StarController.starController;
     }
@@ -36,6 +39,18 @@ export default class StarController implements StarControllerI{
      * body formatted as JSON array containing the star objects
      */
     findAllStarredMessagesByUser(req: Request, res: Response): void {
+        const uid = req.params.uid;
+        const profile = req.session['profile'];
+        let userId = uid === 'me' && profile ? profile._id : uid;
+
+        if(userId === null){
+            res.status(503).send("User needs to be logged in to unstar a message!");
+            return;
+        }
+        StarController.starDao.findAllStarredMessagesByUser(userId)
+            .then((starred: Star[]) => res.json(starred.map(value => value.message)))
+
+
     }
 
     /**
@@ -56,6 +71,16 @@ export default class StarController implements StarControllerI{
      * on whether the star instance was successfully deleted or not
      */
     userUnstarsMessage(req: Request, res: Response): void {
+        const uid = req.params.uid;
+        const profile = req.session['profile'];
+        let userId = uid === 'me' && profile ? profile._id : uid;
+
+        if(userId === null){
+            res.status(503).send("User needs to be logged in to unstar a message!");
+            return;
+        }
+        StarController.starDao.userUnstarsMessage(userId, req.params.mid)
+            .then(status => res.json(status));
     }
 
 }
