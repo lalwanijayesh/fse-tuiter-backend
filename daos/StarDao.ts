@@ -33,7 +33,12 @@ export default class StarDao implements StarDaoI{
      * @returns Promise To be notified when messages are retrieved from the database
      */
     async findAllStarredMessagesByUser(uid: string): Promise<Star[]> {
-        return StarModel.find({starredBy: uid});
+        return StarModel.find({starredBy: uid})
+            .populate({
+                path: 'message',
+                populate: { path: 'from' }
+            })
+            .exec();
     }
 
     /**
