@@ -24,18 +24,33 @@ export default class StarController implements StarControllerI{
         if (StarController.starController == null) {
             StarController.starController = new StarController();
             app.post('/users/:uid/stars/:mid', StarController.starController.userStarsMessage);
+            app.delete('/users/:uid/stars/:mid', StarController.starController.userUnstarsMessage);
+            app.get('/starred/:uid', StarController.starController.findAllStarredMessagesByUser);
         }
         return StarController.starController;
     }
     private constructor() {}
 
     /**
-     * Retrieves all starred messages from database for a user
-     * @param {Request} req Represents request from client
+     * Retrieve all starred message instances starred by a particular user
+     * @param {Request} req Represents request from client, including path
+     * parameter uid, identifying the primary key of the user who has starred a message
      * @param {Response} res Represents response to client, including the
-     * body formatted as JSON array containing the star objects
+     * body formatted as JSON array of starred message instances objects starred by specified user
      */
     findAllStarredMessagesByUser(req: Request, res: Response): void {
+        const uid = req.params.uid;
+        const profile = req.session['profile'];
+        let userId = uid === 'me' && profile ? profile._id : uid;
+
+        if(userId === null){
+            res.status(503).send("User needs to be logged in to unstar a message!");
+            return;
+        }
+        StarController.starDao.findAllStarredMessagesByUser(userId)
+            .then(starred => res.json(starred))
+
+
     }
 
     /**
@@ -57,6 +72,16 @@ export default class StarController implements StarControllerI{
      * on whether the star instance was successfully deleted or not
      */
     userUnstarsMessage(req: Request, res: Response): void {
+        const uid = req.params.uid;
+        const profile = req.session['profile'];
+        let userId = uid === 'me' && profile ? profile._id : uid;
+
+        if(userId === null){
+            res.status(503).send("User needs to be logged in to unstar a message!");
+            return;
+        }
+        StarController.starDao.userUnstarsMessage(userId, req.params.mid)
+            .then(status => res.json(status));
     }
 
 }

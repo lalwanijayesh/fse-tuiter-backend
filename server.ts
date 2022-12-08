@@ -80,7 +80,7 @@ const followController = FollowController.getInstance(app);
 const bookmarkController = BookmarkController.getInstance(app);
 const messageController = MessageController.getInstance(app);
 const authController = AuthController.getInstance(app);
-const starController= StarController.getInstance(app);
+const starController = StarController.getInstance(app);
 
 app.get('/', (req: Request, res: Response) =>
     res.send('Welcome to Tuiter API!'));
