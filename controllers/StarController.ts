@@ -4,7 +4,6 @@
 import StarControllerI from "../interfaces/StarController";
 import {Request, Response, Express} from "express";
 import StarDao from "../daos/StarDao";
-import Star from "../models/Star";
 
 /**
  * @class StarController Implements RESTful Web service API for stars resource.
@@ -33,10 +32,11 @@ export default class StarController implements StarControllerI{
     private constructor() {}
 
     /**
-     * Retrieves all starred messages from database for a user
-     * @param {Request} req Represents request from client
+     * Retrieve all starred message instances starred by a particular user
+     * @param {Request} req Represents request from client, including path
+     * parameter uid, identifying the primary key of the user who has starred a message
      * @param {Response} res Represents response to client, including the
-     * body formatted as JSON array containing the star objects
+     * body formatted as JSON array of starred message instances objects starred by specified user
      */
     findAllStarredMessagesByUser(req: Request, res: Response): void {
         const uid = req.params.uid;
@@ -48,7 +48,7 @@ export default class StarController implements StarControllerI{
             return;
         }
         StarController.starDao.findAllStarredMessagesByUser(userId)
-            .then((starred: Star[]) => res.json(starred.map(value => value.message)))
+            .then(starred => res.json(starred))
 
 
     }

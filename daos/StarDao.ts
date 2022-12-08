@@ -27,8 +27,13 @@ export default class StarDao implements StarDaoI{
     };
     private constructor() {}
 
+    /**
+     * Uses StarModel to retrieve all messages starred by a specific user
+     * @param {string} uid Primary key of the user that starred a message
+     * @returns Promise To be notified when messages are retrieved from the database
+     */
     async findAllStarredMessagesByUser(uid: string): Promise<Star[]> {
-        return StarModel.find({uid})
+        return StarModel.find({starredBy: uid});
     }
 
     /**
