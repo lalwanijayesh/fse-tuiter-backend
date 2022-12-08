@@ -24,6 +24,8 @@ export default class StarController implements StarControllerI{
         if (StarController.starController == null) {
             StarController.starController = new StarController();
             app.post('/users/:uid/stars/:mid', StarController.starController.userStarsMessage);
+            app.get('/users/:uid/stars', StarController.starController.findAllStarredMessagesByUser);
+            app.delete('/users/:uid/stars/:mid', StarController.starController.userUnstarsMessage);
         }
         return StarController.starController;
     }
@@ -36,6 +38,8 @@ export default class StarController implements StarControllerI{
      * body formatted as JSON array containing the star objects
      */
     findAllStarredMessagesByUser(req: Request, res: Response): void {
+        StarController.starDao.findAllStarredMessagesByUser(req.params.uid)
+        .then(stars => res.json(stars));
     }
 
     /**
@@ -57,6 +61,8 @@ export default class StarController implements StarControllerI{
      * on whether the star instance was successfully deleted or not
      */
     userUnstarsMessage(req: Request, res: Response): void {
+        StarController.starDao.userUnstarsMessage(req.params.uid, req.params.mid)
+        .then(status => res.json(status));
     }
 
 }

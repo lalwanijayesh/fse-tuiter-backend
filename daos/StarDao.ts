@@ -29,8 +29,20 @@ export default class StarDao implements StarDaoI{
     };
     private constructor() {}
 
-    findAllStarredMessagesByUser(uid: string): Promise<Star[]> {
-        return Promise.resolve([]);
+    /**
+     * Insert starred instance into the database
+     * @param {string} uid Primary key of the user that starred the tuit
+     * @param {string} mid Primary key of the message that was starred
+     * @returns return a list of messages starred by the user
+     */
+    async findAllStarredMessagesByUser(uid: string): Promise<Star[]> {
+        return await StarModel
+            .find({starredBy: uid})
+            .populate({
+                path: 'message',
+                populate: { path: 'from' }
+              })
+            .exec();
     }
 
     /**
@@ -46,8 +58,14 @@ export default class StarDao implements StarDaoI{
         });
     }
 
-    userUnstarsMessage(uid: string, mid: string): Promise<any> {
-        return Promise.resolve(undefined);
+    /**
+     * Removes an existing starred message from the starred list in database
+     * @param {string} mid Primary key of the message to be removed
+     * @param {string} uid Primary key of the user who starred the message
+     * @returns Promise To be notified when message is removed from the starred list in database
+     */
+    async userUnstarsMessage(uid: string, mid: string): Promise<any> {
+        return await StarModel.deleteOne({message: mid, starredBy: uid});
     }
 
 }
