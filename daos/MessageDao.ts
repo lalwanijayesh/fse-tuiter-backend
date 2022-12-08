@@ -82,8 +82,8 @@ export default class MessageDao implements MessageDaoI {
      * @returns Promise To be notified when message is updated in the database
      */
     async updateMessage(mid: string, message: string): Promise<any> {
-        return MessageModel.updateOne({_id: mid},
-            {$set: {message: message, edited: true}}
+        return MessageModel.findOneAndUpdate({_id: mid},
+            {$set: {message: message}}, {returnOriginal: false}
         );
     }
 
