@@ -38,7 +38,8 @@ export default class MessageDao implements MessageDaoI {
             .create({
                 message: message,
                 from: uid,
-                to: ruid
+                to: ruid,
+                edited: false
             });
     }
 
@@ -82,7 +83,7 @@ export default class MessageDao implements MessageDaoI {
      */
     async updateMessage(mid: string, message: string): Promise<any> {
         return MessageModel.updateOne({_id: mid},
-            {$set: {message: message}}
+            {$set: {message: message, edited: true}}
         );
     }
 

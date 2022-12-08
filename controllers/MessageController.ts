@@ -35,7 +35,7 @@ export default class MessageController implements MessageControllerI {
             app.get('/users/:uid/messages/sent', MessageController.messageController.findMessagesSentByUser);
             app.get('/users/:uid/messages/received', MessageController.messageController.findMessagesReceivedByUser);
             app.delete('/messages/:mid', MessageController.messageController.deleteMessage);
-            app.put('/messages/:mid', MessageController.messageController.updateMessage);
+            app.put('/users/:uid/messages/:mid', MessageController.messageController.updateMessage);
             app.get('/users/:uid/messages/:ruid', MessageController.messageController.findMessagesBetweenUsers);
             app.get('/users/:uid/chats', MessageController.messageController.getLatestMessageForUser);
         }
@@ -54,7 +54,7 @@ export default class MessageController implements MessageControllerI {
     userMessagesAnotherUser = (req: Request, res: Response) => {
         let userId = req.params.uid === "me" && req.session['profile'] ?
             req.session['profile']._id : req.params.uid;
-        MessageController.messageDao.userMessagesAnotherUser(req.params.uid, req.params.ruid, req.body.message)
+        MessageController.messageDao.userMessagesAnotherUser(userId, req.params.ruid, req.body.message)
             .then(message => res.json(message));
 
     }
@@ -127,9 +127,17 @@ export default class MessageController implements MessageControllerI {
      * @param {Response} res Represents response to client, including status
      * on whether message was successfully updated or not
      */
-    updateMessage = (req: Request, res: Response) =>
+    updateMessage = (req: Request, res: Response) => {
+        let senderUserId = req.params.uid === "me" && req.session['profile'] ?
+            req.session['profile']._id : req.params.uid;
+
+        if (senderUserId === "me") {
+            res.sendStatus(503);
+            return;
+        }
         MessageController.messageDao.updateMessage(req.params.mid, req.body.message)
             .then(status => res.json(status));
+    }
 
     /**
      * Retrieves all messages exchanged between the specified users
