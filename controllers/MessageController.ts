@@ -38,6 +38,7 @@ export default class MessageController implements MessageControllerI {
             app.put('/users/:uid/messages/:mid', MessageController.messageController.updateMessage);
             app.get('/users/:uid/messages/:ruid', MessageController.messageController.findMessagesBetweenUsers);
             app.get('/users/:uid/chats', MessageController.messageController.getLatestMessageForUser);
+            app.get('/messages/:mid',MessageController.messageController.findMessageById);
         }
         return MessageController.messageController;
     }
@@ -57,6 +58,11 @@ export default class MessageController implements MessageControllerI {
         MessageController.messageDao.userMessagesAnotherUser(userId, req.params.ruid, req.body.message)
             .then(message => res.json(message));
 
+    }
+
+    findMessageById = (req:Request, res:Response) =>{
+        MessageController.messageDao.findMessageById(req.params.mid)
+            .then(message => res.json(message));
     }
 
     /**

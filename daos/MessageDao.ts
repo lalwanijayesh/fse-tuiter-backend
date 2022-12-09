@@ -87,6 +87,10 @@ export default class MessageDao implements MessageDaoI {
         );
     }
 
+    async findMessageById(mid:string):Promise<Message>{
+        return MessageModel.findOne({_id:mid}).exec();
+    }
+
     /**
      * Uses MessageModel to retrieve messages exchanged between two users
      * @param {string} uid Primary key of the user that sent the messages
