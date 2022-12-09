@@ -59,7 +59,13 @@ export default class MessageController implements MessageControllerI {
             .then(message => res.json(message));
 
     }
-
+    /**
+     * Retrieves the message by its message id
+     * @param {Request} req Represents request from client, including path
+     * parameter mid, identifying the primary key of the message
+     * @param {Response} res Represents response to client, including the
+     * body formatted as JSON array containing the message object
+     */
     findMessageById = (req:Request, res:Response) =>{
         MessageController.messageDao.findMessageById(req.params.mid)
             .then(message => res.json(message));

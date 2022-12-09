@@ -11,4 +11,5 @@ export default interface MessageController {
     updateMessage(req: Request, res: Response): void;
     findMessagesBetweenUsers(req: Request, res: Response): void;
     getLatestMessageForUser(req: Request, res:Response): void;
+    findMessageById(req:Request, res:Response): void;
 };
