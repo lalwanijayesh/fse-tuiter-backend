@@ -86,6 +86,14 @@ export default class MessageDao implements MessageDaoI {
             {$set: {message: message, edited: true}}, {returnOriginal: false}
         );
     }
+    /**
+     * Uses MessageModel to retrieve message by its id
+     * @param {string} mid Primary key of the message to be retrieved
+     * @returns Promise To be notified when message is retrieved from the database
+     */
+    async findMessageById(mid:string):Promise<Message>{
+        return MessageModel.findOne({_id:mid}).exec();
+    }
 
     /**
      * Uses MessageModel to retrieve messages exchanged between two users

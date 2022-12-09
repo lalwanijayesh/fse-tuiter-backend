@@ -4,6 +4,8 @@
 import StarControllerI from "../interfaces/StarController";
 import {Request, Response, Express} from "express";
 import StarDao from "../daos/StarDao";
+import MessageDao from "../daos/MessageDao";
+import Star from "../models/Star";
 
 /**
  * @class StarController Implements RESTful Web service API for stars resource.
@@ -15,10 +17,11 @@ import StarDao from "../daos/StarDao";
  * @property {StarController} starController Singleton controller implementing
  * RESTful Web Service API
  */
-export default class StarController implements StarControllerI{
+export default class StarController implements StarControllerI {
 
     private static starDao: StarDao = StarDao.getInstance();
     private static starController: StarController | null = null;
+    private static messageDao: MessageDao = MessageDao.getInstance();
 
     public static getInstance = (app: Express): StarController => {
         if (StarController.starController == null) {
@@ -29,7 +32,9 @@ export default class StarController implements StarControllerI{
         }
         return StarController.starController;
     }
-    private constructor() {}
+
+    private constructor() {
+    }
 
     /**
      * Retrieve all starred message instances starred by a particular user
@@ -43,7 +48,7 @@ export default class StarController implements StarControllerI{
         const profile = req.session['profile'];
         let userId = uid === 'me' && profile ? profile._id : uid;
 
-        if(userId === null){
+        if (userId === null) {
             res.status(503).send("User needs to be logged in to unstar a message!");
             return;
         }
@@ -60,9 +65,25 @@ export default class StarController implements StarControllerI{
      * @param {Response} res Represents response to client, including the
      * body formatted as JSON containing the new star instance inserted in the database
      */
-    userStarsMessage=(req:Request, res: Response) =>
-    StarController.starDao.userStarsMessage(req.params.uid, req.params.mid)
-        .then(stars => res.json(stars));
+    userStarsMessage = async (req: Request, res: Response) => {
+        const uid = req.params.uid;
+        const mid=req.params.mid;
+        const profile = req.session['profile'];
+        let userId = uid === 'me' && profile ? profile._id : uid;
+        const messagesStarredByUser = await StarController.starDao.findAllStarredMessagesByUser(userId);
+        const message= await StarController.messageDao.findMessageById(mid);
+        if (messagesStarredByUser !== null) {
+                for(let i=0; i<messagesStarredByUser.length; i++){
+                    if(messagesStarredByUser[i].message.message === message.message){
+                        res.status(503).send("This message has already been starred");
+                        return;
+                    }
+                }
+    }
+        await StarController.starDao.userStarsMessage(req.params.uid, req.params.mid)
+            .then(stars => res.json(stars));
+    }
+
 
     /**
      * Removes an existing star instance
