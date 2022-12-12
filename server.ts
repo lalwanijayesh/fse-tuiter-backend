@@ -31,6 +31,11 @@ import StarController from "./controllers/StarController";
 
 const app = express();
 
+app.use(cors({
+    credentials: true,
+    origin: process.env.CORS_ORIGIN
+}));
+
 let sess = {
     secret: process.env.SECRET,
     saveUninitialized: false,
@@ -47,10 +52,6 @@ if (process.env.ENV === 'PRODUCTION') {
 
 app.use(session(sess));
 app.use(express.json());
-app.use(cors({
-    credentials: true,
-    origin: true
-}));
 
 const options = {
     useNewUrlParser: true,
