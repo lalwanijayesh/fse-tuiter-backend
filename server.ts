@@ -38,8 +38,8 @@ app.use(cors({
 
 let sess = {
     secret: process.env.SECRET,
-    saveUninitialized: false,
-    resave: false,
+    saveUninitialized: true,
+    resave: true,
     cookie: {
         sameSite: process.env.NODE_ENV === "PRODUCTION" ? 'none' : 'lax',
         secure: process.env.NODE_ENV === "PRODUCTION",
